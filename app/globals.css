@@ -20,6 +20,15 @@
   }
 }
 
+@layer utilities {
+  .neon-glow-cyan {
+    box-shadow: 0 0 10px #22d3ee, 0 0 20px #22d3ee;
+  }
+  .neon-glow-pink {
+    box-shadow: 0 0 10px #f472b6, 0 0 20px #f472b6;
+  }
+}
+
 body {
   background-color: var(--background);
   color: var(--foreground);
