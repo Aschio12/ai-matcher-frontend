@@ -160,7 +160,7 @@ export default function MatchLeaderboard({ results, isLoading = false }: Props) 
                             const isCached = result.is_cached;
 
                             return (
-                                <div key={idx} className="bg-slate-900/30 transition-colors hover:bg-slate-800/30 group">
+                                <div key={idx} className="bg-[var(--card)] border-b border-[var(--border)] transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 group">
                                     <div
                                         className="grid grid-cols-12 gap-4 p-4 items-center cursor-pointer"
                                         onClick={() => setSelectedCandidate(result)}
