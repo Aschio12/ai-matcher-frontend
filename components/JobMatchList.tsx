@@ -105,13 +105,7 @@ export default function JobMatchList() {
                             <h3 className="text-lg font-semibold text-purple-400 mb-4 flex items-center gap-2">
                                 <Sparkles className="w-5 h-5" /> Top Matches
                             </h3>
-                            {activeResults ? (
-                                <MatchLeaderboard results={activeResults} />
-                            ) : (
-                                <div className="h-64 flex items-center justify-center border border-dashed border-slate-800 rounded-xl bg-slate-900/50 text-slate-500">
-                                    Upload resumes to see rankings
-                                </div>
-                            )}
+                            <MatchLeaderboard results={activeResults || []} isLoading={isMatching} />
                         </div>
                     </div>
                 </div>
