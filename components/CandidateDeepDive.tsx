@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Download, CheckCircle, AlertTriangle, HelpCircle, FileText, Zap } from 'lucide-react';
+import ProgressRing from './ProgressRing';
 
 type AnalysisData = {
     candidateName: string;
@@ -22,7 +23,7 @@ type Props = {
 };
 
 export default function CandidateDeepDive({ isOpen, onClose, data, onReAnalyze }: Props) {
-    if (!isOpen) return null;
+    if (!data) return null;
 
     const hasIntelligence = !!data.interview_questions && !!data.skill_gap_analysis;
 
@@ -54,125 +55,131 @@ ${data.interview_questions?.map((q, i) => `${i + 1}. ${q}`).join('\n') || 'N/A'}
 
     return (
         <AnimatePresence>
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
-                onClick={onClose}
-            >
-                <motion.div
-                    initial={{ scale: 0.95, opacity: 0, y: 20 }}
-                    animate={{ scale: 1, opacity: 1, y: 0 }}
-                    exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                    className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl"
-                    onClick={e => e.stopPropagation()}
-                >
-                    {/* Header */}
-                    <div className="sticky top-0 bg-slate-900/95 border-b border-slate-800 p-6 flex justify-between items-start z-10 backdrop-blur-md">
-                        <div>
-                            <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-                                {data.candidateName}
-                                <span className={`text-sm px-3 py-1 rounded-full border 
-                                    ${data.matchScore >= 75 ? 'text-green-400 border-green-500/30 bg-green-500/10' :
-                                        data.matchScore >= 50 ? 'text-yellow-400 border-yellow-500/30 bg-yellow-500/10' :
-                                            'text-red-400 border-red-500/30 bg-red-500/10'}`}>
-                                    {data.matchScore}% Match
-                                </span>
-                            </h2>
-                            <p className="text-slate-400 mt-1 italic">"{data.justification}"</p>
-                        </div>
-                        <div className="flex gap-2">
-                            <button
-                                onClick={handleDownload}
-                                className="p-2 text-slate-400 hover:text-cyan-400 hover:bg-cyan-950/30 rounded-lg transition-colors"
-                                title="Download Report"
-                            >
-                                <Download className="w-5 h-5" />
-                            </button>
+            {isOpen && (
+                <>
+                    {/* Dimmed Backdrop */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+                        onClick={onClose}
+                    />
+
+                    {/* Slide-Over Panel */}
+                    <motion.div
+                        initial={{ x: "100%" }}
+                        animate={{ x: 0 }}
+                        exit={{ x: "100%" }}
+                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        className="fixed inset-y-0 right-0 z-50 w-full max-w-2xl bg-[var(--background)] border-l border-[var(--border)] shadow-2xl overflow-y-auto"
+                    >
+                        {/* Header */}
+                        <div className="sticky top-0 bg-[var(--background)]/95 border-b border-[var(--border)] p-8 flex justify-between items-start z-10 backdrop-blur-md">
+                            <div className="pr-12">
+                                <h2 className="text-3xl font-bold tracking-tight mb-2 flex items-center gap-3">
+                                    {data.candidateName}
+                                </h2>
+                                <p className="text-slate-500 text-lg leading-relaxed">"{data.justification}"</p>
+                            </div>
                             <button
                                 onClick={onClose}
-                                className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+                                className="absolute top-6 right-6 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                             >
                                 <X className="w-6 h-6" />
                             </button>
                         </div>
-                    </div>
 
-                    <div className="p-8 space-y-8">
-                        {/* 1. Skill Matrix */}
-                        <section>
-                            <h3 className="text-lg font-semibold text-cyan-400 mb-4 flex items-center gap-2">
-                                <Zap className="w-5 h-5" /> Skill Gap Matrix
-                            </h3>
-                            {hasIntelligence ? (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                                    {data.skill_gap_analysis?.map((item, idx) => (
-                                        <div key={idx} className={`flex items-center gap-3 p-3 rounded-lg border 
-                                            ${item.status === 'found' ? 'bg-green-500/5 border-green-500/20' :
-                                                item.status === 'missing' ? 'bg-red-500/5 border-red-500/20' :
-                                                    'bg-yellow-500/5 border-yellow-500/20'}`}>
+                        <div className="p-8 space-y-10">
+                            {/* Score Section */}
+                            <div className="flex items-center gap-8 bg-[var(--card)] p-6 rounded-2xl border border-[var(--border)] shadow-sm">
+                                <ProgressRing score={data.matchScore} size={100} />
+                                <div>
+                                    <h3 className="text-xl font-bold mb-1">AI Match Score</h3>
+                                    <p className="text-slate-500 text-sm">Based on strict job description comparison.</p>
+                                    <button
+                                        onClick={handleDownload}
+                                        className="mt-3 flex items-center gap-2 text-sm font-semibold text-cyan-600 dark:text-cyan-400 hover:underline"
+                                    >
+                                        <Download className="w-4 h-4" /> Download Report
+                                    </button>
+                                </div>
+                            </div>
 
-                                            {item.status === 'found' && <CheckCircle className="w-5 h-5 text-green-400 shrink-0" />}
-                                            {item.status === 'missing' && <AlertTriangle className="w-5 h-5 text-red-400 shrink-0" />}
-                                            {item.status === 'partial' && <HelpCircle className="w-5 h-5 text-yellow-400 shrink-0" />}
+                            {/* 1. Skill Matrix */}
+                            <section>
+                                <h3 className="text-xl font-bold mb-5 flex items-center gap-2">
+                                    <Zap className="w-5 h-5 text-amber-500" /> Skill Analysis
+                                </h3>
+                                {hasIntelligence ? (
+                                    <div className="flex flex-col gap-3">
+                                        {data.skill_gap_analysis?.map((item, idx) => (
+                                            <div key={idx} className="flex items-center justify-between p-4 rounded-xl bg-[var(--card)] border border-[var(--border)]">
+                                                <span className="font-medium text-lg">{item.skill}</span>
 
-                                            <div>
-                                                <p className="text-sm font-medium text-slate-200">{item.skill}</p>
-                                                <p className="text-xs uppercase font-bold tracking-wider opacity-70 
-                                                    ${item.status === 'found' ? 'text-green-400' : item.status === 'missing' ? 'text-red-400' : 'text-yellow-400'}">
-                                                    {item.status}
-                                                </p>
+                                                {item.status === 'found' && (
+                                                    <span className="flex items-center gap-2 px-3 py-1 bg-green-100 dark:bg-green-500/10 text-green-700 dark:text-green-400 rounded-full text-sm font-bold">
+                                                        <CheckCircle className="w-4 h-4" /> FOUND
+                                                    </span>
+                                                )}
+                                                {item.status === 'missing' && (
+                                                    <span className="flex items-center gap-2 px-3 py-1 bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400 rounded-full text-sm font-bold">
+                                                        <AlertTriangle className="w-4 h-4" /> MISSING
+                                                    </span>
+                                                )}
+                                                {item.status === 'partial' && (
+                                                    <span className="flex items-center gap-2 px-3 py-1 bg-yellow-100 dark:bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 rounded-full text-sm font-bold">
+                                                        <HelpCircle className="w-4 h-4" /> PARTIAL
+                                                    </span>
+                                                )}
                                             </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <LegacyFallback onReAnalyze={onReAnalyze} />
-                            )}
-                        </section>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <LegacyFallback onReAnalyze={onReAnalyze} />
+                                )}
+                            </section>
 
-                        {/* 2. AI Interviewer */}
-                        <section>
-                            <h3 className="text-lg font-semibold text-purple-400 mb-4 flex items-center gap-2">
-                                <FileText className="w-5 h-5" /> AI Interview Questions
-                            </h3>
-                            {hasIntelligence ? (
-                                <div className="space-y-4">
-                                    {data.interview_questions?.map((question, idx) => (
-                                        <div key={idx} className="bg-slate-800/50 p-4 rounded-xl border border-slate-700 hover:border-purple-500/30 transition-colors">
-                                            <span className="text-purple-500 font-mono text-sm mb-2 block">Question {idx + 1}</span>
-                                            <p className="text-slate-200 text-lg">{question}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="text-slate-500 italic p-4 border border-dashed border-slate-800 rounded-xl">
-                                    Questions not available for this legacy record.
-                                </div>
-                            )}
-                        </section>
-                    </div>
-                </motion.div>
-            </motion.div>
+                            {/* 2. AI Interviewer */}
+                            <section>
+                                <h3 className="text-xl font-bold mb-5 flex items-center gap-2">
+                                    <FileText className="w-5 h-5 text-purple-500" /> Interview Guide
+                                </h3>
+                                {hasIntelligence ? (
+                                    <div className="space-y-4">
+                                        {data.interview_questions?.map((question, idx) => (
+                                            <div key={idx} className="p-6 rounded-xl bg-[var(--card)] border border-[var(--border)] hover:border-purple-500/30 transition-all">
+                                                <div className="flex gap-4">
+                                                    <span className="px-3 h-8 flex items-center justify-center bg-purple-100 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 font-bold rounded-lg text-sm">
+                                                        Q{idx + 1}
+                                                    </span>
+                                                    <p className="text-lg leading-relaxed">{question}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="text-slate-500 italic p-4 border border-dashed border-slate-700 rounded-xl">
+                                        Questions not available for this legacy record.
+                                    </div>
+                                )}
+                            </section>
+
+                            <div className="h-20"></div> {/* Bottom Spacer */}
+                        </div>
+                    </motion.div>
+                </>
+            )}
         </AnimatePresence>
     );
 }
 
 function LegacyFallback({ onReAnalyze }: { onReAnalyze?: () => void }) {
     return (
-        <div className="flex flex-col items-center justify-center p-8 bg-slate-800/30 rounded-xl border border-dashed border-slate-700 text-center">
+        <div className="flex flex-col items-center justify-center p-8 bg-[var(--card)] rounded-xl border border-dashed border-[var(--border)] text-center">
             <AlertTriangle className="w-8 h-8 text-yellow-500 mb-3" />
-            <p className="text-slate-300 font-medium">Intelligence data not available</p>
+            <p className="font-medium">Intelligence data not available</p>
             <p className="text-slate-500 text-sm mb-4">This record was created before the AI upgrade.</p>
-            {onReAnalyze && (
-                <button
-                    onClick={onReAnalyze}
-                    className="px-4 py-2 bg-slate-700 hover:bg-cyan-600 text-white rounded-lg text-sm transition-colors"
-                >
-                    Re-analyze Candidate
-                </button>
-            )}
         </div>
     );
 }
