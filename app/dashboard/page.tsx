@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from 'react';
-import ResumeUpload from '../../components/ResumeUpload';
 import JobMatchList from '../../components/JobMatchList';
 
 export default function DashboardPage() {
@@ -19,18 +18,7 @@ export default function DashboardPage() {
                     <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-600">
                         AI Resume Matcher Dashboard
                     </h1>
-                    <p className="text-slate-400">
-                        Upload your resume to get started with AI-powered job matching
-                    </p>
                 </div>
-
-                <section className="bg-slate-900/50 border border-slate-800 rounded-2xl p-8 backdrop-blur-sm shadow-xl">
-                    <h2 className="text-2xl font-semibold mb-6 flex items-center gap-2">
-                        <span className="w-1 h-8 bg-cyan-500 rounded-full"></span>
-                        Resume Upload
-                    </h2>
-                    <ResumeUpload onUploadSuccess={handleUploadSuccess} />
-                </section>
 
                 <section className="bg-slate-900/50 border border-slate-800 rounded-2xl p-8 backdrop-blur-sm shadow-xl">
                     <h2 className="text-2xl font-semibold mb-6 flex items-center gap-2">
