@@ -80,40 +80,40 @@ export default function MatchLeaderboard({ results, isLoading = false }: Props) 
             {/* Analysis Overview Stats */}
             {!isLoading && results.length > 0 && (
                 <div className="grid grid-cols-3 gap-4">
-                    <div className="bg-slate-900/50 border border-slate-800 p-4 rounded-xl flex items-center gap-4">
-                        <div className="p-3 bg-blue-500/10 rounded-lg text-blue-400">
+                    <div className="bg-[var(--card)] border border-[var(--border)] p-4 rounded-xl flex items-center gap-4 shadow-sm">
+                        <div className="p-3 bg-blue-500/10 rounded-lg text-blue-500">
                             <Users className="w-5 h-5" />
                         </div>
                         <div>
-                            <p className="text-slate-400 text-xs uppercase font-bold">Total Candidates</p>
-                            <p className="text-2xl font-bold text-slate-100">{totalCandidates}</p>
+                            <p className="text-slate-500 text-xs uppercase font-bold">Total Candidates</p>
+                            <p className="text-2xl font-bold text-[var(--foreground)]">{totalCandidates}</p>
                         </div>
                     </div>
-                    <div className="bg-slate-900/50 border border-slate-800 p-4 rounded-xl flex items-center gap-4">
-                        <div className="p-3 bg-purple-500/10 rounded-lg text-purple-400">
+                    <div className="bg-[var(--card)] border border-[var(--border)] p-4 rounded-xl flex items-center gap-4 shadow-sm">
+                        <div className="p-3 bg-purple-500/10 rounded-lg text-purple-500">
                             <BarChart3 className="w-5 h-5" />
                         </div>
                         <div>
-                            <p className="text-slate-400 text-xs uppercase font-bold">Average Score</p>
-                            <p className="text-2xl font-bold text-slate-100">{avgScore}%</p>
+                            <p className="text-slate-500 text-xs uppercase font-bold">Average Score</p>
+                            <p className="text-2xl font-bold text-[var(--foreground)]">{avgScore}%</p>
                         </div>
                     </div>
-                    <div className="bg-slate-900/50 border border-slate-800 p-4 rounded-xl flex items-center gap-4">
-                        <div className="p-3 bg-green-500/10 rounded-lg text-green-400">
+                    <div className="bg-[var(--card)] border border-[var(--border)] p-4 rounded-xl flex items-center gap-4 shadow-sm">
+                        <div className="p-3 bg-green-500/10 rounded-lg text-green-500">
                             <Sparkles className="w-5 h-5" />
                         </div>
                         <div>
-                            <p className="text-slate-400 text-xs uppercase font-bold">Top Match</p>
-                            <p className="text-2xl font-bold text-slate-100">{topMatch}%</p>
+                            <p className="text-slate-500 text-xs uppercase font-bold">Top Match</p>
+                            <p className="text-2xl font-bold text-[var(--foreground)]">{topMatch}%</p>
                         </div>
                     </div>
                 </div>
             )}
 
-            <div className="w-full bg-slate-900/50 border border-slate-800 rounded-xl overflow-hidden backdrop-blur-sm">
+            <div className="w-full bg-[var(--card)] border border-[var(--border)] rounded-xl overflow-hidden backdrop-blur-sm shadow-sm">
                 {/* Header with Export */}
-                <div className="flex justify-between items-center p-4 bg-slate-800/80 border-b border-slate-700">
-                    <h3 className="text-sm font-semibold text-slate-300">Candidate Rankings</h3>
+                <div className="flex justify-between items-center p-4 bg-[var(--input)] border-b border-[var(--border)]">
+                    <h3 className="text-sm font-semibold text-[var(--foreground)]">Candidate Rankings</h3>
                     {!isLoading && results.length > 0 && (
                         <button
                             onClick={handleExportCSV}
@@ -125,7 +125,7 @@ export default function MatchLeaderboard({ results, isLoading = false }: Props) 
                 </div>
 
                 {/* Table Header */}
-                <div className="grid grid-cols-12 gap-4 p-4 bg-slate-800/50 border-b border-slate-700 text-xs font-bold uppercase tracking-wider text-slate-400">
+                <div className="grid grid-cols-12 gap-4 p-4 bg-[var(--card)] border-b border-[var(--border)] text-xs font-bold uppercase tracking-wider text-slate-500">
                     <div className="col-span-1 text-center">#</div>
                     <div className="col-span-5">Candidate Name</div>
                     <div
@@ -143,10 +143,10 @@ export default function MatchLeaderboard({ results, isLoading = false }: Props) 
                     <div className="divide-y divide-slate-800 animate-pulse">
                         {[1, 2, 3].map((i) => (
                             <div key={i} className="grid grid-cols-12 gap-4 p-4 items-center">
-                                <div className="col-span-1 h-4 bg-slate-800 rounded"></div>
-                                <div className="col-span-5 h-4 bg-slate-800 rounded w-3/4"></div>
-                                <div className="col-span-3 h-6 bg-slate-800 rounded-full w-16"></div>
-                                <div className="col-span-3 h-5 bg-slate-800 rounded w-12 ml-auto"></div>
+                                <div className="col-span-1 h-4 bg-[var(--input)] rounded"></div>
+                                <div className="col-span-5 h-4 bg-[var(--input)] rounded w-3/4"></div>
+                                <div className="col-span-3 h-6 bg-[var(--input)] rounded-full w-16"></div>
+                                <div className="col-span-3 h-5 bg-[var(--input)] rounded w-12 ml-auto"></div>
                             </div>
                         ))}
                     </div>
@@ -168,7 +168,7 @@ export default function MatchLeaderboard({ results, isLoading = false }: Props) 
                                         <div className="col-span-1 text-center font-mono text-slate-500 text-sm">
                                             {idx + 1}
                                         </div>
-                                        <div className="col-span-5 font-medium text-slate-200 truncate group-hover:text-cyan-400 transition-colors">
+                                        <div className="col-span-5 font-medium text-[var(--foreground)] truncate group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
                                             {candidateName || "Unknown Candidate"}
                                         </div>
                                         <div className="col-span-3">
