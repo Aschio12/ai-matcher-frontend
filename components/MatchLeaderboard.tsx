@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, ChevronUp, Zap, Sparkles, CheckCircle, AlertTriangle } from 'lucide-react';
+import CandidateDeepDive from './CandidateDeepDive';
 
 type MatchResult = {
     analysis_json: {
@@ -11,6 +12,8 @@ type MatchResult = {
         justification: string;
         key_matches: string[];
         missing_requirements: string[];
+        interview_questions?: string[];
+        skill_gap_analysis?: { skill: string; status: 'found' | 'missing' | 'partial' }[];
     };
     is_cached?: boolean;
     file_url?: string;
@@ -22,7 +25,7 @@ type Props = {
 
 export default function MatchLeaderboard({ results }: Props) {
     const [sortAsc, setSortAsc] = useState(false);
-    const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+    const [selectedCandidate, setSelectedCandidate] = useState<MatchResult | null>(null);
 
     // Sort results by score
     const sortedResults = [...results].sort((a, b) => {
@@ -56,21 +59,20 @@ export default function MatchLeaderboard({ results }: Props) {
             {/* Rows */}
             <div className="divide-y divide-slate-800">
                 {sortedResults.map((result, idx) => {
-                    const isExpanded = expandedIndex === idx;
-                    const { candidateName, matchScore, justification, key_matches, missing_requirements } = result.analysis_json;
+                    const { candidateName, matchScore } = result.analysis_json;
                     const isCached = result.is_cached;
 
                     return (
-                        <div key={idx} className="bg-slate-900/30 transition-colors hover:bg-slate-800/30">
+                        <div key={idx} className="bg-slate-900/30 transition-colors hover:bg-slate-800/30 group">
                             {/* Main Row */}
                             <div
                                 className="grid grid-cols-12 gap-4 p-4 items-center cursor-pointer"
-                                onClick={() => setExpandedIndex(isExpanded ? null : idx)}
+                                onClick={() => setSelectedCandidate(result)}
                             >
                                 <div className="col-span-1 text-center font-mono text-slate-500">
                                     {idx + 1}
                                 </div>
-                                <div className="col-span-5 font-medium text-slate-200 truncate">
+                                <div className="col-span-5 font-medium text-slate-200 truncate group-hover:text-cyan-400 transition-colors">
                                     {candidateName || "Unknown Candidate"}
                                 </div>
                                 <div className="col-span-3">
@@ -90,54 +92,21 @@ export default function MatchLeaderboard({ results }: Props) {
                                     )}
                                 </div>
                             </div>
-
-                            {/* Expanded Details */}
-                            <AnimatePresence>
-                                {isExpanded && (
-                                    <motion.div
-                                        initial={{ height: 0, opacity: 0 }}
-                                        animate={{ height: 'auto', opacity: 1 }}
-                                        exit={{ height: 0, opacity: 0 }}
-                                        className="overflow-hidden bg-slate-950/30"
-                                    >
-                                        <div className="p-6 border-t border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div className="space-y-4">
-                                                <div>
-                                                    <h4 className="text-xs uppercase tracking-wider text-slate-500 mb-2">Analysis Summary</h4>
-                                                    <p className="text-slate-300 text-sm leading-relaxed italic">"{justification}"</p>
-                                                </div>
-                                                <div className="p-3 bg-green-500/5 rounded-lg border border-green-500/10">
-                                                    <h4 className="flex items-center gap-2 text-green-400 text-sm font-semibold mb-2">
-                                                        <CheckCircle className="w-4 h-4" /> Key Strengths
-                                                    </h4>
-                                                    <ul className="text-sm text-slate-400 space-y-1">
-                                                        {key_matches?.slice(0, 3).map((m, i) => (
-                                                            <li key={i}>• {m}</li>
-                                                        ))}
-                                                    </ul>
-                                                </div>
-                                            </div>
-
-                                            <div className="space-y-4">
-                                                <div className="p-3 bg-red-500/5 rounded-lg border border-red-500/10">
-                                                    <h4 className="flex items-center gap-2 text-red-400 text-sm font-semibold mb-2">
-                                                        <AlertTriangle className="w-4 h-4" /> Missing / Gaps
-                                                    </h4>
-                                                    <ul className="text-sm text-slate-400 space-y-1">
-                                                        {missing_requirements?.slice(0, 3).map((m, i) => (
-                                                            <li key={i}>• {m}</li>
-                                                        ))}
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
                         </div>
                     );
                 })}
             </div>
+
+            {/* Deep Dive Modal */}
+            <CandidateDeepDive
+                isOpen={!!selectedCandidate}
+                onClose={() => setSelectedCandidate(null)}
+                data={selectedCandidate?.analysis_json!}
+                onReAnalyze={() => {
+                    // Placeholder for future re-analyze logic
+                    alert("Re-analysis feature coming soon!");
+                }}
+            />
         </div>
     );
 }
