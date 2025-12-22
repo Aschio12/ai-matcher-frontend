@@ -98,16 +98,16 @@ export default function JobMatchList({ shouldRefreshResume }: JobMatchListProps)
                     <ChevronLeft className="w-4 h-4 mr-1" /> Back to Jobs
                 </button>
 
-                <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
-                    <h2 className="text-2xl font-bold text-white mb-2">{activeJob.title}</h2>
-                    <p className="text-slate-400 text-sm mb-6 whitespace-pre-line max-h-40 overflow-y-auto custom-scrollbar">
+                <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-6 shadow-sm">
+                    <h2 className="text-2xl font-bold text-[var(--foreground)] mb-2">{activeJob.title}</h2>
+                    <p className="text-slate-500 text-sm mb-6 whitespace-pre-line max-h-40 overflow-y-auto custom-scrollbar">
                         {activeJob.description_text}
                     </p>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         {/* Left: Upload Area (Scoped to this Job) */}
                         <div>
-                            <h3 className="text-lg font-semibold text-cyan-400 mb-4 flex items-center gap-2">
+                            <h3 className="text-lg font-semibold text-cyan-600 dark:text-cyan-400 mb-4 flex items-center gap-2">
                                 <Briefcase className="w-5 h-5" /> Add Candidates
                             </h3>
                             <MultiFileUpload onUpload={handleBulkMatch} isLoading={isMatching} />
@@ -116,7 +116,7 @@ export default function JobMatchList({ shouldRefreshResume }: JobMatchListProps)
                         {/* Right: Leaderboard */}
                         <div>
                             <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-lg font-semibold text-purple-400 flex items-center gap-2">
+                                <h3 className="text-lg font-semibold text-purple-600 dark:text-purple-400 flex items-center gap-2">
                                     <Sparkles className="w-5 h-5" /> Top Matches
                                 </h3>
                             </div>
@@ -131,10 +131,10 @@ export default function JobMatchList({ shouldRefreshResume }: JobMatchListProps)
     return (
         <div className="space-y-6">
             {/* Header Actions */}
-            <div className="flex justify-between items-center bg-slate-900/50 p-4 rounded-xl border border-slate-800">
+            <div className="flex justify-between items-center bg-[var(--card)]/50 p-4 rounded-xl border border-[var(--border)] backdrop-blur-sm">
                 <div>
-                    <h2 className="text-xl font-bold text-white">Your Job Openings</h2>
-                    <p className="text-sm text-slate-400">Select a job to find the perfect candidate</p>
+                    <h2 className="text-xl font-bold text-[var(--foreground)]">Your Job Openings</h2>
+                    <p className="text-sm text-slate-500">Select a job to find the perfect candidate</p>
                 </div>
                 <button
                     onClick={() => setIsCreateModalOpen(true)}
@@ -149,13 +149,13 @@ export default function JobMatchList({ shouldRefreshResume }: JobMatchListProps)
                 {/* Create New Card (Empty State or Action) */}
                 <motion.div
                     whileHover={{ scale: 1.02 }}
-                    className="cursor-pointer bg-slate-900/50 border-2 border-dashed border-slate-700 hover:border-cyan-500/50 p-6 rounded-xl flex flex-col items-center justify-center text-center group min-h-[200px]"
+                    className="cursor-pointer bg-[var(--card)]/50 border-2 border-dashed border-[var(--border)] hover:border-cyan-500/50 p-6 rounded-xl flex flex-col items-center justify-center text-center group min-h-[200px]"
                     onClick={() => setIsCreateModalOpen(true)}
                 >
-                    <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-cyan-500/10 group-hover:text-cyan-400 transition-colors mb-4">
+                    <div className="w-12 h-12 rounded-full bg-[var(--input)] flex items-center justify-center text-slate-400 group-hover:bg-cyan-500/10 group-hover:text-cyan-400 transition-colors mb-4">
                         <Plus className="w-6 h-6" />
                     </div>
-                    <h3 className="text-lg font-bold text-slate-300 group-hover:text-white">Create New Job</h3>
+                    <h3 className="text-lg font-bold text-slate-500 group-hover:text-[var(--foreground)]">Create New Job</h3>
                     <p className="text-sm text-slate-500 mt-2">Add a title and description to start matching.</p>
                 </motion.div>
 
@@ -171,23 +171,23 @@ export default function JobMatchList({ shouldRefreshResume }: JobMatchListProps)
                     <motion.div
                         key={job.id}
                         whileHover={{ scale: 1.02 }}
-                        className="cursor-pointer bg-slate-900 border border-slate-800 p-6 rounded-xl hover:border-cyan-500/50 transition-colors group relative overflow-hidden"
+                        className="cursor-pointer bg-[var(--card)] border border-[var(--border)] p-6 rounded-xl hover:border-cyan-500/50 transition-colors group relative overflow-hidden shadow-sm"
                         onClick={() => setSelectedJobId(job.id)}
                     >
                         <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 rounded-bl-full -mr-10 -mt-10 transition-transform group-hover:scale-150 group-hover:bg-cyan-500/10"></div>
 
                         <div className="flex justify-between items-start mb-4 relative z-10">
-                            <div className="w-10 h-10 rounded-full bg-cyan-900/20 flex items-center justify-center text-cyan-400 group-hover:bg-cyan-500 group-hover:text-white transition-colors">
+                            <div className="w-10 h-10 rounded-full bg-cyan-500/10 flex items-center justify-center text-cyan-600 dark:text-cyan-400 group-hover:bg-cyan-500 group-hover:text-white transition-colors">
                                 <Briefcase className="w-5 h-5" />
                             </div>
                             {matchResults[job.id] && (
-                                <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full">
+                                <span className="text-xs bg-green-500/10 text-green-600 dark:text-green-400 px-2 py-1 rounded-full border border-green-500/20">
                                     {matchResults[job.id].length} Matches
                                 </span>
                             )}
                         </div>
-                        <h3 className="text-lg font-bold text-white mb-2 relative z-10">{job.title}</h3>
-                        <p className="text-slate-400 text-sm line-clamp-3 mb-4 relative z-10">
+                        <h3 className="text-lg font-bold text-[var(--foreground)] mb-2 relative z-10">{job.title}</h3>
+                        <p className="text-slate-500 text-sm line-clamp-3 mb-4 relative z-10">
                             {job.description_text}
                         </p>
                         <div className="text-sm font-medium text-cyan-500 flex items-center opacity-0 group-hover:opacity-100 transition-opacity mt-auto">
