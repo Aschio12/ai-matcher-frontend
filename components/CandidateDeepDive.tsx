@@ -62,7 +62,7 @@ ${data.interview_questions?.map((q, i) => `${i + 1}. ${q}`).join('\n') || 'N/A'}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+                        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
                         onClick={onClose}
                     />
 
