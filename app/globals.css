@@ -1,38 +1,60 @@
 @import "tailwindcss";
 
-:root {
-  /* Dark mode defaults */
-  --background: #020617; /* slate-950 */
-  --foreground: #e5e7eb; /* slate-200 */
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+@theme {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #020617; /* slate-950 */
-    --foreground: #e5e7eb; /* slate-200 */
-  }
+:root {
+  --background: #F9FAFB;
+  --foreground: #111827;
+  --text-body: #4B5563;
+  --card: #FFFFFF;
+  --card-foreground: #111827;
+  --border: #E5E7EB;
+  --input: #F3F4F6;
+  --ring: #3B82F6;
+  --shadow-card: 0 4px 6px -1px rgb(0 0 0 / 0.1);
 }
 
-@layer utilities {
-  .neon-glow-cyan {
-    box-shadow: 0 0 10px #22d3ee, 0 0 20px #22d3ee;
-  }
-  .neon-glow-pink {
-    box-shadow: 0 0 10px #f472b6, 0 0 20px #f472b6;
-  }
+.dark {
+  --background: #020617;
+  --foreground: #e2e8f0;
+  --text-body: #94a3b8;
+  --card: #0f172a;
+  --card-foreground: #f1f5f9;
+  --border: #1e293b;
+  --input: #1e293b;
+  --ring: #22d3ee;
+  --shadow-card: none;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", sans-serif;
+  font-family: var(--font-geist-sans), sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Custom Utilities */
+@utility neon-glow-cyan {
+  box-shadow: 0 0 10px #22d3ee, 0 0 20px #22d3ee;
+}
