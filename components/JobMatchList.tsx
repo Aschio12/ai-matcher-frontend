@@ -15,7 +15,11 @@ type Job = {
     created_at: string;
 };
 
-export default function JobMatchList() {
+type JobMatchListProps = {
+    shouldRefreshResume?: boolean;
+};
+
+export default function JobMatchList({ shouldRefreshResume }: JobMatchListProps) {
     const { user } = useAuth();
     const [jobs, setJobs] = useState<Job[]>([]);
 
@@ -49,7 +53,7 @@ export default function JobMatchList() {
 
     useEffect(() => {
         fetchJobs();
-    }, [fetchJobs]);
+    }, [fetchJobs, shouldRefreshResume]);
 
     const handleBulkMatch = async (files: File[]) => {
         if (!selectedJobId || !user?.token) return;
@@ -101,7 +105,7 @@ export default function JobMatchList() {
                     </p>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        {/* Left: Upload Area */}
+                        {/* Left: Upload Area (Scoped to this Job) */}
                         <div>
                             <h3 className="text-lg font-semibold text-cyan-400 mb-4 flex items-center gap-2">
                                 <Briefcase className="w-5 h-5" /> Add Candidates
@@ -111,9 +115,11 @@ export default function JobMatchList() {
 
                         {/* Right: Leaderboard */}
                         <div>
-                            <h3 className="text-lg font-semibold text-purple-400 mb-4 flex items-center gap-2">
-                                <Sparkles className="w-5 h-5" /> Top Matches
-                            </h3>
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-lg font-semibold text-purple-400 flex items-center gap-2">
+                                    <Sparkles className="w-5 h-5" /> Top Matches
+                                </h3>
+                            </div>
                             <MatchLeaderboard results={activeResults || []} isLoading={isMatching} />
                         </div>
                     </div>
