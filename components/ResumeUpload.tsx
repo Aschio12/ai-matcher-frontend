@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { UploadCloud, FileText, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/auth-context';
 
-export default function ResumeUpload() {
+export default function ResumeUpload({ onUploadSuccess }: { onUploadSuccess?: () => void }) {
     const { user } = useAuth();
     const [isDragActive, setIsDragActive] = useState(false);
     const [file, setFile] = useState<File | null>(null);
@@ -77,6 +77,7 @@ export default function ResumeUpload() {
                 setUploadStatus('success');
                 setMessage('Resume uploaded successfully!');
                 setFile(null); // Clear file after success
+                if (onUploadSuccess) onUploadSuccess();
             } else {
                 setUploadStatus('error');
                 setMessage(data.error || 'Upload failed. Please try again.');
