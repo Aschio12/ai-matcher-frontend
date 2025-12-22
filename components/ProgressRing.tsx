@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useTheme } from '../context/theme-context';
 
 type Props = {
     score: number;
@@ -10,6 +11,7 @@ type Props = {
 };
 
 export default function ProgressRing({ score, size = 120, strokeWidth = 8 }: Props) {
+    const { theme } = useTheme();
     const [progress, setProgress] = useState(0);
     const radius = (size - strokeWidth) / 2;
     const circumference = radius * 2 * Math.PI;
@@ -22,6 +24,12 @@ export default function ProgressRing({ score, size = 120, strokeWidth = 8 }: Pro
     }, [score]);
 
     const getColor = (val: number) => {
+        // Light Mode: Premium Indigo
+        if (theme === 'light') {
+            return '#4f46e5'; // Indigo 600
+        }
+
+        // Dark Mode: Semantic Status
         if (val >= 75) return '#4ade80'; // Green 400
         if (val >= 50) return '#facc15'; // Yellow 400
         return '#f87171'; // Red 400
