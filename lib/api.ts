@@ -5,8 +5,7 @@ const api = axios.create({
   baseURL: "http://localhost:3001/api/v1",
 });
 
-// Attach JWT from cookies to every request if present
-api.interceptors.request.use((config) => {
+api.interceptors.request.use((config: any) => {
   const token = Cookies.get("token");
 
   if (token) {
@@ -17,5 +16,17 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-export default api;
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      Cookies.remove("token");
+      if (typeof window !== "undefined" && !window.location.pathname.includes("/login")) {
+        window.location.href = "/login";
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
+export default api;

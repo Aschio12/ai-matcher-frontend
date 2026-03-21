@@ -4,13 +4,13 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
 
 type User = {
-  // Extend later with id, email, etc.
   token: string;
 } | null;
 
 type AuthContextValue = {
   user: User;
   isAuthenticated: boolean;
+  loading: boolean;
   login: (token: string) => void;
   logout: () => void;
 };
@@ -19,12 +19,14 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const token = Cookies.get("token");
     if (token) {
       setUser({ token });
     }
+    setLoading(false);
   }, []);
 
   const login = (token: string) => {
@@ -40,6 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value: AuthContextValue = {
     user,
     isAuthenticated: !!user,
+    loading,
     login,
     logout,
   };
@@ -54,4 +57,3 @@ export function useAuth() {
   }
   return ctx;
 }
-
