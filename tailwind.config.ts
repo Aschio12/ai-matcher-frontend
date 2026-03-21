@@ -3,6 +3,7 @@ import type { Config } from "tailwindcss";
 const config: Config = {
   content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./context/**/*.{js,ts,jsx,tsx,mdx}",
     "./lib/**/*.{js,ts,jsx,tsx,mdx}",
   ],
@@ -12,6 +13,7 @@ const config: Config = {
         neon: {
           cyan: "#22d3ee",
           pink: "#f472b6",
+          purple: "#a78bfa",
         },
       },
     },
@@ -20,4 +22,3 @@ const config: Config = {
 };
 
 export default config;
-
