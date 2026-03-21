@@ -8,12 +8,11 @@ import {
   LayoutDashboard,
   Briefcase,
   BarChart3,
-  Settings,
+  CircleHelp,
   LogOut,
   Cpu,
   ChevronLeft,
   ChevronRight,
-  Activity,
   User,
 } from "lucide-react";
 import { useState } from "react";
@@ -22,7 +21,7 @@ const navItems = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { label: "Jobs", href: "/dashboard/jobs", icon: Briefcase },
   { label: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
-  { label: "Settings", href: "/dashboard/settings", icon: Settings },
+  { label: "Help", href: "/dashboard/help", icon: CircleHelp },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -158,40 +157,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               );
             })}
           </nav>
-
-          {/* System Status */}
-          <AnimatePresence>
-            {!collapsed && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="mx-3 mb-3 rounded-xl border border-white/[0.03] bg-white/[0.01] p-3"
-              >
-                <div className="mb-2 flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-slate-600">
-                  <Activity className="h-2.5 w-2.5" />
-                  System Status
-                </div>
-                <div className="space-y-1.5">
-                  {[
-                    { label: "API", status: true },
-                    { label: "AI Engine", status: true },
-                    { label: "Storage", status: true },
-                  ].map((s) => (
-                    <div key={s.label} className="flex items-center justify-between">
-                      <span className="text-[10px] text-slate-500">{s.label}</span>
-                      <div className="flex items-center gap-1">
-                        <div className={`h-1 w-1 rounded-full ${s.status ? "bg-emerald-400 shadow-[0_0_4px_rgba(52,211,153,0.6)]" : "bg-red-400"}`} />
-                        <span className={`text-[9px] font-medium ${s.status ? "text-emerald-400/60" : "text-red-400/60"}`}>
-                          {s.status ? "OK" : "Down"}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
 
           {/* Logout */}
           <div className="border-t border-white/[0.03] p-2.5">

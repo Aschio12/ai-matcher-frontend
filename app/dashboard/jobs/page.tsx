@@ -158,7 +158,7 @@ export default function JobsPage() {
               className="group relative overflow-hidden rounded-2xl border border-white/[0.04] bg-white/[0.015] transition-all duration-300 hover:border-white/[0.08] hover:bg-white/[0.025] hover:shadow-[0_0_40px_rgba(34,211,238,0.04)]"
             >
               <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-neon-cyan/20 to-transparent opacity-0 transition group-hover:opacity-100" />
-              <button onClick={() => router.push(`/dashboard/jobs/${job._id}`)} className="w-full p-5 text-left">
+              <div onClick={() => router.push(`/dashboard/jobs/${job._id}`)} className="w-full cursor-pointer p-5 text-left">
                 <div className="flex items-start justify-between">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-neon-cyan/10 to-neon-purple/10">
                     <Briefcase className="h-4.5 w-4.5 text-neon-cyan/60" />
@@ -194,7 +194,7 @@ export default function JobsPage() {
                   </div>
                   <ArrowRight className="h-3.5 w-3.5 text-slate-700 transition group-hover:text-neon-cyan" />
                 </div>
-              </button>
+              </div>
             </motion.div>
           ))}
         </motion.div>

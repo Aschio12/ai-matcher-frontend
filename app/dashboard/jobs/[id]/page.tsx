@@ -6,10 +6,29 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, Upload, FileText, User, CheckCircle2, AlertTriangle,
   Loader2, ChevronDown, ChevronUp, Sparkles, Zap, Clock, Trash2, Brain,
-  Target, Award, TrendingUp, Users,
+  Target, Award, TrendingUp, Users, CloudUpload, X, Info,
 } from "lucide-react";
 import api from "@/lib/api";
 import ScoreRing from "@/components/ScoreRing";
+
+type ClientHint = {
+  type: "success" | "error" | "warning" | "info";
+  title: string;
+  message: string;
+  code?: string;
+};
+
+const PHASE_STEPS = [
+  { label: "Step 1 of 3", detail: "Sending your file to the server…" },
+  { label: "Step 2 of 3", detail: "Saving to storage and extracting text from your CV…" },
+  { label: "Step 3 of 3", detail: "Calling OpenAI to score the match (often 15–45 seconds)…" },
+];
+
+function mergeHints(hints: ClientHint[]): ClientHint | null {
+  if (hints.length === 0) return null;
+  const rank: Record<ClientHint["type"], number> = { error: 0, warning: 1, info: 2, success: 3 };
+  return [...hints].sort((a, b) => rank[a.type] - rank[b.type])[0];
+}
 
 interface Job { _id: string; title: string; description_text: string; created_at: string }
 interface Candidate {
@@ -28,8 +47,9 @@ export default function JobDetailPage() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState("");
-  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadFileLabel, setUploadFileLabel] = useState("");
+  const [phaseIndex, setPhaseIndex] = useState(0);
+  const [activeHint, setActiveHint] = useState<ClientHint | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -48,27 +68,57 @@ export default function JobDetailPage() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  useEffect(() => {
+    if (!uploading) {
+      setPhaseIndex(0);
+      return;
+    }
+    const id = setInterval(() => {
+      setPhaseIndex((i) => (i + 1) % PHASE_STEPS.length);
+    }, 3200);
+    return () => clearInterval(id);
+  }, [uploading]);
+
+  useEffect(() => {
+    if (activeHint?.type !== "success") return;
+    const t = setTimeout(() => setActiveHint(null), 12000);
+    return () => clearTimeout(t);
+  }, [activeHint]);
+
   const handleUpload = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
-    setUploadError(null);
+    setActiveHint(null);
     setUploading(true);
     const total = files.length;
+    const collected: ClientHint[] = [];
     try {
       for (let i = 0; i < total; i++) {
         const file = files[i];
-        setUploadProgress(`Analyzing ${i + 1}/${total}: ${file.name}`);
+        setUploadFileLabel(`${file.name}${total > 1 ? ` (${i + 1}/${total})` : ""}`);
         const formData = new FormData();
         formData.append("resume", file);
         formData.append("jobId", jobId);
         formData.append("candidate_name", file.name.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " "));
-        await api.post("/candidates", formData, { headers: { "Content-Type": "multipart/form-data" } });
+        const { data } = await api.post("/candidates", formData, { headers: { "Content-Type": "multipart/form-data" } });
+        if (data?.clientHint) collected.push(data.clientHint as ClientHint);
       }
       await fetchData();
+      const merged = mergeHints(collected);
+      if (merged) setActiveHint(merged);
     } catch (err: any) {
-      setUploadError(err?.response?.data?.message || "Upload failed");
+      const d = err?.response?.data;
+      if (d?.clientHint) setActiveHint(d.clientHint as ClientHint);
+      else {
+        setActiveHint({
+          type: "error",
+          title: "Upload failed",
+          message: d?.message || err?.message || "Could not reach the server. Is the backend running on port 3001?",
+          code: "NETWORK",
+        });
+      }
     } finally {
       setUploading(false);
-      setUploadProgress("");
+      setUploadFileLabel("");
     }
   };
 
@@ -176,54 +226,98 @@ export default function JobDetailPage() {
         <h2 className="mb-3 flex items-center gap-2 text-xs font-bold text-slate-200">
           <Upload className="h-3.5 w-3.5 text-neon-cyan" /> Upload Resumes
         </h2>
+
+        <AnimatePresence>
+          {activeHint && !uploading && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              className={`relative mb-4 rounded-2xl border px-4 py-3 pr-10 ${
+                activeHint.type === "success"
+                  ? "border-emerald-500/20 bg-emerald-500/[0.06]"
+                  : activeHint.type === "error"
+                    ? "border-red-500/25 bg-red-500/[0.06]"
+                    : activeHint.type === "warning"
+                      ? "border-amber-500/25 bg-amber-500/[0.06]"
+                      : "border-neon-cyan/15 bg-neon-cyan/[0.04]"
+              }`}
+            >
+              <button
+                type="button"
+                onClick={() => setActiveHint(null)}
+                className="absolute right-3 top-3 rounded-lg p-1 text-slate-500 transition hover:bg-white/[0.06] hover:text-slate-300"
+                aria-label="Dismiss"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+              <div className="flex gap-3">
+                {activeHint.type === "success" && <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />}
+                {activeHint.type === "error" && <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-400" />}
+                {activeHint.type === "warning" && <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />}
+                {activeHint.type === "info" && <Info className="mt-0.5 h-4 w-4 shrink-0 text-neon-cyan" />}
+                <div>
+                  <p className={`text-sm font-bold ${
+                    activeHint.type === "success" ? "text-emerald-200" :
+                    activeHint.type === "error" ? "text-red-200" :
+                    activeHint.type === "warning" ? "text-amber-200" : "text-neon-cyan/90"
+                  }`}>{activeHint.title}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-slate-400">{activeHint.message}</p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {uploading && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mb-4 overflow-hidden rounded-2xl border border-neon-cyan/20 bg-gradient-to-br from-neon-cyan/[0.08] to-neon-purple/[0.05] p-5 shadow-[0_0_40px_rgba(34,211,238,0.06)]"
+            >
+              <div className="flex items-start gap-4">
+                <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-neon-cyan/10">
+                  <Loader2 className="h-6 w-6 animate-spin text-neon-cyan" />
+                  <Brain className="pointer-events-none absolute h-3.5 w-3.5 text-neon-cyan/60" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold text-neon-cyan">Working on your CV…</p>
+                  <p className="mt-0.5 truncate text-[11px] text-slate-500">{uploadFileLabel}</p>
+                  <p className="mt-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">{PHASE_STEPS[phaseIndex].label}</p>
+                  <p className="mt-1 text-xs text-slate-300">{PHASE_STEPS[phaseIndex].detail}</p>
+                </div>
+              </div>
+              <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
+                <motion.div
+                  className="h-full w-1/3 rounded-full bg-gradient-to-r from-neon-cyan to-neon-purple"
+                  animate={{ x: ["-120%", "280%"] }}
+                  transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+                />
+              </div>
+              <p className="mt-3 text-[10px] text-slate-600">Do not close this tab until the process finishes.</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <label
           onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
           onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
           className={`flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed py-12 transition-all ${
             dragOver ? "border-neon-cyan/30 bg-neon-cyan/[0.03] shadow-[0_0_40px_rgba(34,211,238,0.06)]" : "border-white/[0.04] bg-white/[0.008] hover:border-white/[0.08] hover:bg-white/[0.015]"
-          } ${uploading ? "pointer-events-none opacity-60" : ""}`}
+          } ${uploading ? "pointer-events-none opacity-40" : ""}`}
         >
           <input type="file" accept=".txt,.pdf,.doc,.docx" multiple className="hidden" onChange={(e) => handleUpload(e.target.files)} disabled={uploading} />
-          {uploading ? (
-            <div className="flex flex-col items-center gap-3">
-              <div className="relative">
-                <div className="h-14 w-14 animate-spin rounded-full border-2 border-neon-cyan/20 border-t-neon-cyan" />
-                <Brain className="absolute inset-0 m-auto h-6 w-6 text-neon-cyan/50" />
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-bold text-neon-cyan">AI Processing...</p>
-                <p className="mt-1 text-[10px] text-slate-500">{uploadProgress}</p>
-              </div>
-              <div className="flex gap-1">
-                {[0, 1, 2].map((i) => (
-                  <motion.div
-                    key={i}
-                    className="h-1.5 w-1.5 rounded-full bg-neon-cyan"
-                    animate={{ opacity: [0.2, 1, 0.2] }}
-                    transition={{ duration: 1, delay: i * 0.2, repeat: Infinity }}
-                  />
-                ))}
-              </div>
-            </div>
-          ) : (
-            <>
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-neon-cyan/10 to-neon-purple/10">
-                <FileText className="h-6 w-6 text-neon-cyan/50" />
-              </div>
-              <p className="mt-3 text-sm font-medium text-slate-300">
-                Drop resumes here or <span className="font-bold text-neon-cyan">browse files</span>
-              </p>
-              <p className="mt-1 text-[10px] text-slate-600">PDF, TXT, DOC, DOCX &middot; Max 10MB per file</p>
-            </>
-          )}
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-neon-cyan/10 to-neon-purple/10">
+            <CloudUpload className="h-6 w-6 text-neon-cyan/50" />
+          </div>
+          <p className="mt-3 text-sm font-medium text-slate-300">
+            Drop resumes here or <span className="font-bold text-neon-cyan">browse files</span>
+          </p>
+          <p className="mt-1 text-[10px] text-slate-600">PDF, TXT, DOC, DOCX &middot; Max 10MB per file</p>
         </label>
-        {uploadError && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-3 flex items-center gap-2 rounded-xl border border-neon-pink/10 bg-neon-pink/[0.03] px-4 py-2.5">
-            <AlertTriangle className="h-3.5 w-3.5 text-neon-pink" />
-            <p className="text-[11px] font-medium text-neon-pink">{uploadError}</p>
-          </motion.div>
-        )}
       </motion.div>
 
       {/* Candidates */}
@@ -269,7 +363,7 @@ export default function JobDetailPage() {
                   }`}
                 >
                   {/* Header row */}
-                  <button onClick={() => setExpandedId(expanded ? null : c._id)} className="flex w-full items-center gap-4 p-5 text-left">
+                  <div onClick={() => setExpandedId(expanded ? null : c._id)} className="flex w-full cursor-pointer items-center gap-4 p-5 text-left">
                     <ScoreRing score={c.match_score} size={56} strokeWidth={4} />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
@@ -300,7 +394,7 @@ export default function JobDetailPage() {
                       </button>
                       {expanded ? <ChevronUp className="h-4 w-4 text-slate-600" /> : <ChevronDown className="h-4 w-4 text-slate-600" />}
                     </div>
-                  </button>
+                  </div>
 
                   {/* Expanded report */}
                   <AnimatePresence>
