@@ -31,13 +31,13 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ## Deploy on Vercel
 
-Set **Environment Variables** in the Vercel project (required for API calls):
+Set **Environment Variables** in the Vercel project:
 
-| Name | Example |
-|------|---------|
-| `NEXT_PUBLIC_API_URL` | `https://ai-matcher-backend.onrender.com` |
+| Name | Example | Notes |
+|------|---------|--------|
+| `BACKEND_URL` | `https://ai-matcher-backend.onrender.com` | **Preferred.** Used by the server-side `/api/v1/*` proxy at runtime (no rebuild needed when you change it). |
 
-No trailing slash; `/api/v1` is appended automatically. Redeploy after changing env vars (values are baked in at build time).
+The browser calls your own domain (`/api/v1/...`); Next forwards to `BACKEND_URL`. You do **not** need `NEXT_PUBLIC_API_URL` unless you want the browser to talk to Render directly (then CORS on the backend must allow your Vercel domain).
 
 On **Render** (backend), set `FRONTEND_URL` to your Vercel origin, e.g. `https://ai-matcher-frontend.vercel.app` (comma-separate multiple origins if needed, or use `CORS_ORIGINS`).
 
