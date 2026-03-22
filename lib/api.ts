@@ -1,8 +1,11 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 
+const apiBase =
+  (process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001").replace(/\/$/, "") + "/api/v1";
+
 const api = axios.create({
-  baseURL: "http://localhost:3001/api/v1",
+  baseURL: apiBase,
 });
 
 api.interceptors.request.use((config: any) => {

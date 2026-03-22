@@ -112,7 +112,10 @@ export default function JobDetailPage() {
         setActiveHint({
           type: "error",
           title: "Upload failed",
-          message: d?.message || err?.message || "Could not reach the server. Is the backend running on port 3001?",
+          message:
+            d?.message ||
+            err?.message ||
+            "Could not reach the API. Check NEXT_PUBLIC_API_URL (production) or that the backend is running locally.",
           code: "NETWORK",
         });
       }
